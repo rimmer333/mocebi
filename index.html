@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>IbGeo Map</title>
+    <link rel="stylesheet" href="leaflet.css"/>
+    <link rel="stylesheet" href="custom.css"/>
+    <link rel="stylesheet" href="MarkerCluster.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta charset="utf-8">
+</head>
+<body>
+<div id="map"></div>
+    <script src="jquery.min.js"></script>
+    <script src="heap.js"></script>
+    <script src="leaflet-src.js"></script>
+    <script src="leaflet-indoor.js"></script>
+    <script src="leaflet.markercluster.js"></script>
+    <script src="http://contentsrv.ibecom.ru/tracker/socket.io/socket.io.js"></script>
+    <script src="ibgeomap.js"></script>
+    <script type="text/JavaScript">
+        var appID = 3;
+        window.appSideInit = true;
+        var socket = io.connect('http://contentsrv.ibecom.ru', {path: "/tracker/socket.io"});
+    </script>
+</body>
+</html>
