@@ -2,6 +2,9 @@
  * Created by vshevaldin on 10.10.2014.
  */
 
+//window.onload = function () {
+    /*-------------------------------------Общие функции------------------------------------------------------------*/
+
     /*
     * Рассчёт ширины текса в пикселях
     * */
@@ -861,14 +864,12 @@
             this.indoorLayer.addTo(this._map);
             this.indoorLayer.setLevel(levels[0]);
 
-            /*
             if (levels.length > 1) {
                 this._initLevelControl(levels);
             }
 
             this.zommControl = L.control.zoom({position:"centerright"});
             this.zommControl.addTo(this._map);
-            */
 
             if (this.options.fitBounds) {
                 this.indoorLayer.fitToBounds();
@@ -1185,7 +1186,10 @@
             }
         });
 
-        /*this._map.on('marker-add', function(){
+        this._map.on('marker-add', function(){
+            if (self.trackControl !== undefined) {
+                return;
+            }
             self.trackControl = L.Control.track({position:"centerright"});
             self.trackControl.on('trackchange', function (evt) {
                 if (!self._terminal && evt.state === false) {
@@ -1197,7 +1201,7 @@
             });
 
             self.trackControl.addTo(self._map);
-        });*/
+        });
 
         return this;
     };
@@ -1258,7 +1262,6 @@
         var recalculatedX = x,
             recalculatedY = y;
         var ignoreAproximation = (ignoreRoutes && (ignoreRoutes === true || ignoreRoutes == 'true')) ? true : false;
-
         if (ibgeoroute && ibgeoroute.isReady() && !ignoreAproximation){
             var from = L.Projection.Mercator.unproject({x: x, y: y});
             var f_point = ibgeoroute._getClosestPoint(from, l);
@@ -1621,3 +1624,12 @@
         ibgeomap._map.remove();
         window.indoorRouteGraph = window.ibgeomap = window.ibgeoroute = null;
     };
+
+    /*
+    *
+    *  Переопределение методов Leaflet
+    *
+    * */
+
+
+//};

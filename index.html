@@ -3,25 +3,280 @@
 
 <head>
     <title>IbGeo Map</title>
+
     <link rel="stylesheet" href="leaflet.css"/>
     <link rel="stylesheet" href="custom.css"/>
     <link rel="stylesheet" href="MarkerCluster.css"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="jquery.datetimepicker.css" />
+    <link rel="stylesheet" href="material/material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
-<div id="map"></div>
-    <script src="jquery.min.js"></script>
-    <script src="heap.js"></script>
-    <script src="leaflet-src.js"></script>
-    <script src="leaflet-indoor.js"></script>
-    <script src="leaflet.markercluster.js"></script>
-    <script src="http://contentsrv.ibecom.ru/tracker/socket.io/socket.io.js"></script>
-    <script src="ibgeomap.js"></script>
-    <script type="text/JavaScript">
-        var appID = 3;
-        window.appSideInit = true;
-        var socket = io.connect('http://contentsrv.ibecom.ru', {path: "/tracker/socket.io"});
-    </script>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+            <!-- Title -->
+            <span class="mdl-layout-title">Трекер</span>
+            <span class="mdl-layout-spacer"></span>
+            <span id="progress-timer" class="mdl-typography--text-center"></span>
+            <span class="mdl-layout-spacer"></span>
+            <span id="location-status" class="material-icons">gps_not_fixed</span>
+        </div>
+    </header>
+    <div id="progress" class="mdl-progress mdl-js-progress mdl-color--light-blue-A700"></div>
+    <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Настройки</span>
+            <form action="#">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="appid">
+                    <label class="mdl-textfield__label" for="appid">ID приложения...</label>
+                    <span class="mdl-textfield__error">Введёное значение не число!</span>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="speed">
+                    <label class="mdl-textfield__label" for="speed">Скорость воспроизведения...</label>
+                    <span class="mdl-textfield__error">Введёное значение не число!</span>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="fromDateTime">
+                    <label class="mdl-textfield__label" for="fromDateTime">Дата\время начала</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="toDateTime">
+                    <label class="mdl-textfield__label" for="toDateTime">Дата\время окончания</label>
+                </div>
+                <label id="online-1" class="mdl-switch mdl-js-switch mdl-js-ripple-effect " for="online">
+                    <input type="checkbox" id="online" class="mdl-switch__input" checked>
+                    <span class="mdl-switch__label">Данные Online</span>
+                </label>
+            </form>
+    </div>
+    <main class="mdl-layout__content">
+        <div id="map">
+        </div>
+    </main>
+    <footer class="mdl-mini-footer mdl-color--indigo-600">
+        <div class="mdl-mini-footer--left-section">
+            <button id="play" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-button--colored">
+                Play
+            </button>
+        </div>
+        <div class="mdl-mini-footer--right-section">
+            <button id="stop" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-button--colored  mdl-color--blue-500">
+                Stop
+            </button>
+        </div>
+    </footer>
+
+</div>
+
+<script type="text/JavaScript">
+    window.appSideInit = true;
+</script>
+<script src="jquery.min.js"></script>
+<script src="material/material.min.js"></script>
+<script src="jquery.datetimepicker.full.min.js"></script>
+<script src="heap.js"></script>
+<script src="leaflet-src.js"></script>
+<script src="leaflet-indoor.js"></script>
+<script src="leaflet.markercluster.js"></script>
+<script src="ibgeomap.js"></script>
+<script src="socket.io/socket.io.js"></script>
+<script>
+
+    var Player = function (points) {
+        var self = this;
+        this._points = points || [];
+        this._idx = 0;
+        this._speed = 1;
+        this._elapsedTime = 0;
+        this._timer = null;
+        this.progressBar = null;
+        this.progressTimer = $('#progress-timer');
+        document.querySelector('#progress').addEventListener('mdl-componentupgraded', function () {
+            self.progressBar = this.MaterialProgress;
+        });
+        this.onlineSwitch = null;
+        document.querySelector('#online-1').addEventListener('mdl-componentupgraded', function () {
+            self.onlineSwitch = this.MaterialSwitch;
+        });
+
+        return this;
+    };
+
+    Player.prototype.isPlaying = function () {
+        if (this._timer !== null) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    Player.prototype.clearProgress = function () {
+        this.setProgress(0);
+        this.progressTimer.text('');
+    };
+
+    Player.prototype.setProgress = function (progress) {
+        if (this.progressBar) {
+            this.progressBar.setProgress(progress);
+        }
+    };
+
+    Player.prototype.play = function () {
+        if (this.onlineSwitch) {
+            this.onlineSwitch.off();
+            this.onlineSwitch.disable();
+        }
+
+        var self = this;
+        var points = self._points;
+
+        if (this._points.length === 0 || this._timer !== null) {
+            return;
+        }
+        this._idx++;
+
+        onTerminalPositionChange(points[0].x, points[0].y, points[0].level);
+        this.setProgress(Math.round((this._idx / this._points.length) * 100));
+
+        if (this._points.length === 1) {
+            return;
+        }
+
+        this._progressTimer = setTimeout(function updateTime() {
+            self._elapsedTime = self._elapsedTime + self._speed * 500;
+            var date = new Date(parseInt(points[0].timestamp) + self._elapsedTime);
+            self.progressTimer.text(date.toLocaleTimeString());
+            self._progressTimer = setTimeout(updateTime, 500);
+        }, 1000);
+
+        console.log(new Date(parseInt(points[0].timestamp)).toLocaleTimeString());
+        console.log(new Date(parseInt(points[points.length - 1].timestamp)).toLocaleTimeString());
+
+        this._timer = setTimeout(function playFrame() {
+            if (self._idx >= points.length - 2) {
+                self.stop();
+                return;
+            }
+            var latentcy = (points[self._idx + 1].timestamp - points[self._idx].timestamp) / self._speed;
+            self._idx++;
+            onTerminalPositionChange(points[self._idx].x, points[self._idx].y, points[self._idx].level);
+            self.setProgress(Math.round((self._idx / points.length) * 100));
+            self._timer = setTimeout(playFrame, latentcy);
+        }, Math.round((points[1].timestamp - points[0].timestamp) / this._speed));
+    };
+
+    Player.prototype.stop = function () {
+        if (this.onlineSwitch) {
+            this.onlineSwitch.enable();
+        }
+        clearTimeout(this._timer);
+        clearTimeout(this._progressTimer);
+        this._elapsedTime = 0;
+        this._timer = null;
+        this._progressTimer = null;
+        this._points = [];
+        this._idx = 0;
+    };
+
+    Player.prototype.setSpeed = function (speed) {
+        this._speed = speed;
+    };
+
+    Player.prototype.load = function (points) {
+        this._points = points;
+    };
+
+    var socket = io.connect('http://contentsrv.ibecom.ru', {path: "/tracker/socket.io"});
+    var fromDateTime = new Date().getTime();
+    var toDateTime = new Date().getTime();
+    var player = new Player();
+
+    function writeTimestamp(timestamp) {
+        $("#timeStamp").val(timestamp);
+    }
+
+    $("#online").on('click', function () {
+        if ($("#online").is(':checked')) {
+            $("#location-status").text('gps_not_fixed');
+            removeTerminal();
+        } else {
+            $("#location-status").text('gps_off');
+        }
+    });
+
+
+    $('#fromDateTime').datetimepicker({
+        onChangeDateTime: function (current_time, input) {
+            if (!current_time) {
+                return;
+            }
+            fromDateTime = current_time.getTime();
+            console.log(fromDateTime);
+        }
+    });
+
+    $('#toDateTime').datetimepicker({
+        onChangeDateTime: function (current_time, input) {
+            if (!current_time) {
+                return;
+            }
+            toDateTime = current_time.getTime();
+            console.log(toDateTime);
+        }
+    });
+
+    $('#speed').change(function () {
+        if (isNaN(parseInt($('#speed').val()))) {
+            return;
+        }
+        player.setSpeed(parseInt($('#speed').val()));
+    });
+
+    $('#play').on('click', function (e) {
+        $("#location-status").text('gps_off');
+        socket.emit('load-track', {
+            appId: $('#appid').val(),
+            startTimeStamp: fromDateTime,
+            endTimeStamp: toDateTime
+        });
+    });
+
+    $('#stop').on('click', function (e) {
+        player.stop();
+        console.log('Stop');
+    });
+
+    socket.on('load-track', function (trackData) {
+        if (trackData.length === 0) {
+            return;
+        }
+        console.log('Play');
+        player.stop();
+        player.load(trackData);
+        player.play();
+    });
+
+    $.get('map_canvas.json', function (Mapdata) {
+        initMap({
+            higlightableTag: 'zone',
+            labelHideZoom: 17,
+            minZoom: 17,
+            maxZoom: 28,
+            zoom: 17,
+            fitBounds: true
+        });
+        loadMapCanvas(Mapdata);
+        socket.on('location-change', function (point) {
+            if (!player.isPlaying() && $('#online').is(':checked')) {
+                $("#location-status").text('gps_fixed');
+                onTerminalPositionChange(point.x, point.y, point.level);
+            }
+        });
+    });
+</script>
 </body>
 </html>

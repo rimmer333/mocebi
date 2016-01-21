@@ -7,11 +7,16 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-#map {
+div#map {
     background-color: #E9E5DC;
     height: 100%;
+    width: 100%;
+    position: absolute;
 }
 
+#progress {
+    width: 100%;
+}
 #controls {
     height: 20%;
 }
