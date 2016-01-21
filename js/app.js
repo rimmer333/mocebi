@@ -1,107 +1,109 @@
+// TODO new Player class with the same interface
 
-var Player = function (points) {
-    var self = this;
-    this._points = points || [];
-    this._idx = 0;
-    this._speed = 1;
-    this._elapsedTime = 0;
-    this._timer = null;
-    this.progressBar = null;
-    this.progressTimer = $('#progress-timer');
-    document.querySelector('#progress').addEventListener('mdl-componentupgraded', function () {
-        self.progressBar = this.MaterialProgress;
-    });
-    this.onlineSwitch = null;
-    document.querySelector('#online-1').addEventListener('mdl-componentupgraded', function () {
-        self.onlineSwitch = this.MaterialSwitch;
-    });
 
-    return this;
-};
+// var Player = function (points) {
+//     var self = this;
+//     this._points = points || [];
+//     this._idx = 0;
+//     this._speed = 1;
+//     this._elapsedTime = 0;
+//     this._timer = null;
+//     this.progressBar = null;
+//     this.progressTimer = $('#progress-timer');
+//     document.querySelector('#progress').addEventListener('mdl-componentupgraded', function () {
+//         self.progressBar = this.MaterialProgress;
+//     });
+//     this.onlineSwitch = null;
+//     document.querySelector('#online-1').addEventListener('mdl-componentupgraded', function () {
+//         self.onlineSwitch = this.MaterialSwitch;
+//     });
 
-Player.prototype.isPlaying = function () {
-    if (this._timer !== null) {
-        return true;
-    } else {
-        return false;
-    }
-};
+//     return this;
+// };
 
-Player.prototype.clearProgress = function () {
-    this.setProgress(0);
-    this.progressTimer.text('');
-};
+// Player.prototype.isPlaying = function () {
+//     if (this._timer !== null) {
+//         return true;
+//     } else {
+//         return false;
+//     }
+// };
 
-Player.prototype.setProgress = function (progress) {
-    if (this.progressBar) {
-        this.progressBar.setProgress(progress);
-    }
-};
+// Player.prototype.clearProgress = function () {
+//     this.setProgress(0);
+//     this.progressTimer.text('');
+// };
 
-Player.prototype.play = function () {
-    if (this.onlineSwitch) {
-        this.onlineSwitch.off();
-        this.onlineSwitch.disable();
-    }
+// Player.prototype.setProgress = function (progress) {
+//     if (this.progressBar) {
+//         this.progressBar.setProgress(progress);
+//     }
+// };
 
-    var self = this;
-    var points = self._points;
+// Player.prototype.play = function () {
+//     if (this.onlineSwitch) {
+//         this.onlineSwitch.off();
+//         this.onlineSwitch.disable();
+//     }
 
-    if (this._points.length === 0 || this._timer !== null) {
-        return;
-    }
-    this._idx++;
+//     var self = this;
+//     var points = self._points;
 
-    onTerminalPositionChange(points[0].x, points[0].y, points[0].level);
-    this.setProgress(Math.round((this._idx / this._points.length) * 100));
+//     if (this._points.length === 0 || this._timer !== null) {
+//         return;
+//     }
+//     this._idx++;
 
-    if (this._points.length === 1) {
-        return;
-    }
+//     onTerminalPositionChange(points[0].x, points[0].y, points[0].level);
+//     this.setProgress(Math.round((this._idx / this._points.length) * 100));
 
-    this._progressTimer = setTimeout(function updateTime() {
-        self._elapsedTime = self._elapsedTime + self._speed * 500;
-        var date = new Date(parseInt(points[0].timestamp) + self._elapsedTime);
-        self.progressTimer.text(date.toLocaleTimeString());
-        self._progressTimer = setTimeout(updateTime, 500);
-    }, 1000);
+//     if (this._points.length === 1) {
+//         return;
+//     }
 
-    console.log(new Date(parseInt(points[0].timestamp)).toLocaleTimeString());
-    console.log(new Date(parseInt(points[points.length - 1].timestamp)).toLocaleTimeString());
+//     this._progressTimer = setTimeout(function updateTime() {
+//         self._elapsedTime = self._elapsedTime + self._speed * 500;
+//         var date = new Date(parseInt(points[0].timestamp) + self._elapsedTime);
+//         self.progressTimer.text(date.toLocaleTimeString());
+//         self._progressTimer = setTimeout(updateTime, 500);
+//     }, 1000);
 
-    this._timer = setTimeout(function playFrame() {
-        if (self._idx >= points.length - 2) {
-            self.stop();
-            return;
-        }
-        var latentcy = (points[self._idx + 1].timestamp - points[self._idx].timestamp) / self._speed;
-        self._idx++;
-        onTerminalPositionChange(points[self._idx].x, points[self._idx].y, points[self._idx].level);
-        self.setProgress(Math.round((self._idx / points.length) * 100));
-        self._timer = setTimeout(playFrame, latentcy);
-    }, Math.round((points[1].timestamp - points[0].timestamp) / this._speed));
-};
+//     console.log(new Date(parseInt(points[0].timestamp)).toLocaleTimeString());
+//     console.log(new Date(parseInt(points[points.length - 1].timestamp)).toLocaleTimeString());
 
-Player.prototype.stop = function () {
-    if (this.onlineSwitch) {
-        this.onlineSwitch.enable();
-    }
-    clearTimeout(this._timer);
-    clearTimeout(this._progressTimer);
-    this._elapsedTime = 0;
-    this._timer = null;
-    this._progressTimer = null;
-    this._points = [];
-    this._idx = 0;
-};
+//     this._timer = setTimeout(function playFrame() {
+//         if (self._idx >= points.length - 2) {
+//             self.stop();
+//             return;
+//         }
+//         var latentcy = (points[self._idx + 1].timestamp - points[self._idx].timestamp) / self._speed;
+//         self._idx++;
+//         onTerminalPositionChange(points[self._idx].x, points[self._idx].y, points[self._idx].level);
+//         self.setProgress(Math.round((self._idx / points.length) * 100));
+//         self._timer = setTimeout(playFrame, latentcy);
+//     }, Math.round((points[1].timestamp - points[0].timestamp) / this._speed));
+// };
 
-Player.prototype.setSpeed = function (speed) {
-    this._speed = speed;
-};
+// Player.prototype.stop = function () {
+//     if (this.onlineSwitch) {
+//         this.onlineSwitch.enable();
+//     }
+//     clearTimeout(this._timer);
+//     clearTimeout(this._progressTimer);
+//     this._elapsedTime = 0;
+//     this._timer = null;
+//     this._progressTimer = null;
+//     this._points = [];
+//     this._idx = 0;
+// };
 
-Player.prototype.load = function (points) {
-    this._points = points;
-};
+// Player.prototype.setSpeed = function (speed) {
+//     this._speed = speed;
+// };
+
+// Player.prototype.load = function (points) {
+//     this._points = points;
+// };
 
 var socket = io.connect('http://contentsrv.ibecom.ru', {path: "/tracker/socket.io"});
 var fromDateTime = new Date().getTime();
