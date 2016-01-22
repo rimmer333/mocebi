@@ -109,6 +109,7 @@ var socket = io.connect('http://contentsrv.ibecom.ru', {path: "/tracker/socket.i
 var fromDateTime = new Date().getTime();
 var toDateTime = new Date().getTime();
 var player = new Player();
+var appId = 0;
 
 function writeTimestamp(timestamp) {
     $("#timeStamp").val(timestamp);
@@ -123,6 +124,21 @@ $("#online").on('click', function () {
     }
 });
 
+function loadData() {
+    if(appId > 0) {
+        socket.emit('load-track', {
+            appId: appId,
+            startTimeStamp: fromDateTime,
+            endTimeStamp: toDateTime
+        });
+        $('#requestInProgress').show();
+    }
+}
+
+$('#appid').change(function(){
+    appId = parseInt($(this).val());
+    loadData();
+})
 
 $('#fromDateTime').datetimepicker({
     onChangeDateTime: function (current_time, input) {
@@ -131,7 +147,9 @@ $('#fromDateTime').datetimepicker({
         }
         fromDateTime = current_time.getTime();
         console.log(fromDateTime);
-    }
+        loadData();
+    },
+    showTimezone: true
 });
 
 $('#toDateTime').datetimepicker({
@@ -141,7 +159,9 @@ $('#toDateTime').datetimepicker({
         }
         toDateTime = current_time.getTime();
         console.log(toDateTime);
-    }
+        loadData();
+    },
+    showTimezone: true
 });
 
 $('#speed').change(function () {
@@ -153,11 +173,6 @@ $('#speed').change(function () {
 
 $('#play').on('click', function (e) {
     $("#location-status").text('gps_off');
-    socket.emit('load-track', {
-        appId: $('#appid').val(),
-        startTimeStamp: fromDateTime,
-        endTimeStamp: toDateTime
-    });
 });
 
 $('#pause').on('click', function (e) {
@@ -177,6 +192,8 @@ socket.on('load-track', function (trackData) {
     player.stop();
     player.load(trackData);
     player.play();
+    $('#requestInProgress').hide();
+    $('#seekBar').show();
 });
 
 $.get('map_canvas.json', function (Mapdata) {
