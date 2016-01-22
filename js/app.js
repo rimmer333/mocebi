@@ -175,14 +175,6 @@ $('#play').on('click', function (e) {
     $("#location-status").text('gps_off');
 });
 
-$('#pause').on('click', function (e) {
-    player.pause();
-});
-
-$('#stop').on('click', function (e) {
-    player.stop();
-    console.log('Stop');
-});
 
 socket.on('load-track', function (trackData) {
     if (trackData.length === 0) {
@@ -191,7 +183,6 @@ socket.on('load-track', function (trackData) {
     console.log('Play');
     player.stop();
     player.load(trackData);
-    player.play();
     $('#requestInProgress').hide();
     $('#seekBar').show();
 });
