@@ -7,11 +7,16 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-#map {
+div#map {
     background-color: #E9E5DC;
     height: 100%;
+    width: 100%;
+    position: absolute;
 }
 
+#progress {
+    width: 100%;
+}
 #controls {
     height: 20%;
 }
@@ -252,3 +257,15 @@ path.poizone {
     color: #494340;
     font-weight: bold;
 }
+
+.mdl-button[disabled] {
+    opacity: 0.5;
+}
+
+.seekBar-container {
+    width: 100%;
+    text-align: center;
+}
+#speed.mdl-slider.is-upgraded, #speed.mdl-slider.is-upgraded::-webkit-slider-thumb{
+    background-color: rgba(255,255,255,0.95);
+}

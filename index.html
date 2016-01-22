@@ -3,25 +3,109 @@
 
 <head>
     <title>IbGeo Map</title>
+
     <link rel="stylesheet" href="leaflet.css"/>
     <link rel="stylesheet" href="custom.css"/>
     <link rel="stylesheet" href="MarkerCluster.css"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="jquery.datetimepicker.css" />
+    <link rel="stylesheet" href="js/lib/material/material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
-<div id="map"></div>
-    <script src="jquery.min.js"></script>
-    <script src="heap.js"></script>
-    <script src="leaflet-src.js"></script>
-    <script src="leaflet-indoor.js"></script>
-    <script src="leaflet.markercluster.js"></script>
-    <script src="http://contentsrv.ibecom.ru/tracker/socket.io/socket.io.js"></script>
-    <script src="ibgeomap.js"></script>
-    <script type="text/JavaScript">
-        var appID = 3;
-        window.appSideInit = true;
-        var socket = io.connect('http://contentsrv.ibecom.ru', {path: "/tracker/socket.io"});
-    </script>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+            <!-- Title -->
+            <span class="mdl-layout-title">Трекер</span>
+            <span class="mdl-layout-spacer"></span>
+            <span class="mdl-typography--text-center" id="appIdDisplay"></span>
+            <span class="mdl-layout-spacer"></span>
+            <span id="location-status" class="material-icons">gps_not_fixed</span>
+        </div>
+    </header>
+    <div id="requestInProgress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate  mdl-color--light-blue-A700" style="display: none;"></div>
+    <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Настройки</span>
+            <form action="#">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="appid">
+                    <label class="mdl-textfield__label" for="appid">ID приложения...</label>
+                    <span class="mdl-textfield__error">Введёное значение не число!</span>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="fromDateTime">
+                    <label class="mdl-textfield__label" for="fromDateTime">Дата\время начала</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="toDateTime">
+                    <label class="mdl-textfield__label" for="toDateTime">Дата\время окончания</label>
+                </div>
+                <label id="online-1" class="mdl-switch mdl-js-switch mdl-js-ripple-effect " for="online">
+                    <input type="checkbox" id="online" class="mdl-switch__input" checked>
+                    <span class="mdl-switch__label">Данные Online</span>
+                </label>
+            </form>
+    </div>
+    <main class="mdl-layout__content">
+        <div id="map">
+        </div>
+    </main>
+    <aside class="mdl-grid mdl-grid--no-spacing seekBar-container">
+        <section class="mdl-cell mdl-cell--3-col">
+            <span id="progress-timer" class="mdl-typography--text-center"></span>
+        </section>
+        <section class="mdl-cell mdl-cell--9-col">
+            <input class="mdl-slider mdl-js-slider" id="seekBar" type="range" min="0" max="10000" value="0" tabindex="0"  style="display: none;">
+        </section>
+    </aside>
+    <footer class="mdl-mini-footer mdl-color--indigo-600">
+        <div class="mdl-mini-footer--left-section">
+            <nav class="mdl-navigation">
+                <button id="rewind" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
+                    <i class="material-icons">fast_rewind</i>
+                </button>
+                <button id="play" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
+                    <i class="material-icons">play_arrow</i>
+                </button>
+                <button id="pause" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white" style="display: none;">
+                    <i class="material-icons">pause</i>
+                </button>
+                <button id="stop" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
+                    <i class="material-icons">stop</i>
+                </button>
+                <button id="forward" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
+                    <i class="material-icons">fast_forward</i>
+                </button>
+            </nav>
+        </div>
+        <div class="mdl-mini-footer--right-section">
+            <nav class="mdl-navigation">
+                <span>1x</span>
+                <input class="mdl-slider mdl-js-slider" id="speed" type="range" min="1" max="20" value="0" tabindex="0">
+                <span>20x</span>
+            </nav>
+        </div>
+    </footer>
+
+</div>
+
+<script type="text/JavaScript">
+    window.appSideInit = true;
+</script>
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/material/material.min.js"></script>
+<script src="js/lib/jquery.datetimepicker.full.min.js"></script>
+<script src="js/lib/heap.js"></script>
+<script src="js/lib/leaflet/leaflet-src.js"></script>
+<script src="js/lib/leaflet/leaflet-indoor.js"></script>
+<script src="js/lib/leaflet/leaflet.markercluster.js"></script>
+<script src="js/lib/socket.io/socket.io.js"></script>
+<script src="js/lib/gsap/TweenLite.min.js"></script>
+<script src="js/lib/gsap/TimelineLite.min.js"></script>
+<script src="js/ibgeomap.js"></script>
+<script src="js/player.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
