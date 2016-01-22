@@ -20,7 +20,6 @@
             <!-- Title -->
             <span class="mdl-layout-title">Трекер</span>
             <span class="mdl-layout-spacer"></span>
-            <span id="progress-timer" class="mdl-typography--text-center"></span>
             <span class="mdl-layout-spacer"></span>
             <span id="location-status" class="material-icons">gps_not_fixed</span>
         </div>
@@ -57,6 +56,14 @@
         <div id="map">
         </div>
     </main>
+    <aside class="mdl-grid mdl-grid--no-spacing seekBar-container">
+        <section class="mdl-cell mdl-cell--2-col">
+            <span id="progress-timer" class="mdl-typography--text-center"></span>
+        </section>
+        <section class="mdl-cell mdl-cell--10-col">
+            <input class="mdl-slider mdl-js-slider" id="seekBar" type="range" min="0" max="10000" value="0" tabindex="0"  style="display: none;">
+        </section>
+    </aside>
     <footer class="mdl-mini-footer mdl-color--indigo-600">
         <div class="mdl-mini-footer--left-section">
             <nav class="mdl-navigation">
@@ -72,7 +79,6 @@
             </nav>
         </div>
         <div class="mdl-mini-footer--right-section">
-            <input class="mdl-slider mdl-js-slider" id="seekerBar" type="range" min="0" max="100" value="0" tabindex="0">
         </div>
     </footer>
 
