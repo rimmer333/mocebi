@@ -137,6 +137,7 @@ function loadData() {
 
 $('#appid').change(function(){
     appId = parseInt($(this).val());
+    $('#appIdDisplay').text('Идентификатор приложения: ' + appId)
     loadData();
 })
 
