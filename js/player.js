@@ -211,6 +211,7 @@
     };
 
     Player.prototype.load = function(points) {
+      var i, len, point, previousPoint;
       timeline = new TimelineLite({
         paused: true,
         onStart: startedPlaying,
@@ -218,17 +219,14 @@
         onUpdate: updateAnimatedObjects,
         callbackScope: this
       });
-      setTimeout((function() {
-        var i, len, point, previousPoint;
-        previousPoint = points.shift();
-        saveFirstPoint(previousPoint);
-        for (i = 0, len = points.length; i < len; i++) {
-          point = points[i];
-          timeline.add(TweenLite.to(animationProxy, calculateTimeDiff(previousPoint, point), extractAnimatedPropertiesFrom(point)));
-          previousPoint = point;
-        }
-        return updateAllControls();
-      }), 1);
+      previousPoint = points.shift();
+      saveFirstPoint(previousPoint);
+      for (i = 0, len = points.length; i < len; i++) {
+        point = points[i];
+        timeline.add(TweenLite.to(animationProxy, calculateTimeDiff(previousPoint, point), extractAnimatedPropertiesFrom(point)));
+        previousPoint = point;
+      }
+      updateAllControls();
       return this;
     };
 
