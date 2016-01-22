@@ -87,7 +87,7 @@
     };
 
     displayTime = function(timestamp) {
-      return $('#progress-timer').innerText = new Date(parseInt(timestamp)).toLocaleTimeString();
+      return $('#progress-timer').innerText = new Date(parseInt(timestamp)).toLocaleString();
     };
 
     updateSeekBar = function() {
