@@ -160,6 +160,10 @@ $('#play').on('click', function (e) {
     });
 });
 
+$('#pause').on('click', function (e) {
+    player.pause();
+});
+
 $('#stop').on('click', function (e) {
     player.stop();
     console.log('Stop');

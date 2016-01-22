@@ -59,14 +59,20 @@
     </main>
     <footer class="mdl-mini-footer mdl-color--indigo-600">
         <div class="mdl-mini-footer--left-section">
-            <button id="play" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-button--colored">
-                Play
-            </button>
+            <nav class="mdl-navigation">
+                <button id="play" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+                    <i class="material-icons">play_arrow</i>
+                </button>
+                <button id="pause" class="mdl-button mdl-js-button mdl-js-ripple-effect" style="display: none;">
+                    <i class="material-icons">pause</i>
+                </button>
+                <button id="stop" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+                    <i class="material-icons">stop</i>
+                </button>
+            </nav>
         </div>
         <div class="mdl-mini-footer--right-section">
-            <button id="stop" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-button--colored  mdl-color--blue-500">
-                Stop
-            </button>
+            <input class="mdl-slider mdl-js-slider" id="seekerBar" type="range" min="0" max="100" value="0" tabindex="0">
         </div>
     </footer>
 

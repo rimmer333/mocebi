@@ -1,11 +1,17 @@
 var Player;
 
 Player = (function() {
-  var animationProxy, calculateTimeDiff, completedPlaying, displayTime, extractAnimatedPropertiesFrom, firstPoint, saveFirstPoint, startedPlaying, timeline, updateAnimatedObjects;
+  var $, animationProxy, calculateTimeDiff, completedPlaying, displayTime, extractAnimatedPropertiesFrom, firstPoint, paused, saveFirstPoint, speed, startedPlaying, timeline, updateAnimatedObjects, updatePlayPauseButtons;
+
+  $ = function(selector) {
+    return document.querySelector(selector);
+  };
 
   timeline = null;
 
   firstPoint = null;
+
+  speed = 1;
 
   animationProxy = {
     x: 0,
@@ -14,11 +20,22 @@ Player = (function() {
     level: 0
   };
 
+  paused = false;
+
   displayTime = function(timestamp) {
-    return document.querySelector("#progress-timer").innerText = new Date(parseInt(timestamp)).toLocaleTimeString();
+    return $("#progress-timer").innerText = new Date(parseInt(timestamp)).toLocaleTimeString();
   };
 
-  startedPlaying = function() {};
+  updatePlayPauseButtons = function() {
+    if (timeline != null) {
+      $('#play').style.display = timeline.paused() ? 'block' : 'none';
+      return $('#pause').style.display = timeline.isActive() ? 'block' : 'none';
+    }
+  };
+
+  startedPlaying = function() {
+    return updatePlayPauseButtons();
+  };
 
   updateAnimatedObjects = function(point) {
     if (point == null) {
@@ -28,7 +45,9 @@ Player = (function() {
     return displayTime(point.timestamp);
   };
 
-  completedPlaying = function() {};
+  completedPlaying = function() {
+    return updatePlayPauseButtons();
+  };
 
   extractAnimatedPropertiesFrom = function(point) {
     return {
@@ -64,23 +83,28 @@ Player = (function() {
 
   Player.prototype.play = function() {
     if (timeline != null) {
-      return timeline.play();
+      timeline.play();
+      timeline.timeScale(speed);
+      return updatePlayPauseButtons();
     }
   };
 
   Player.prototype.stop = function() {
     if (timeline != null) {
-      return timeline.pause(0);
+      timeline.pause(0);
     }
+    return updatePlayPauseButtons();
   };
 
   Player.prototype.pause = function() {
     if (timeline != null) {
-      return timeline.pause();
+      timeline.pause();
     }
+    return updatePlayPauseButtons();
   };
 
-  Player.prototype.setSpeed = function(speed) {
+  Player.prototype.setSpeed = function(value) {
+    speed = value;
     if (timeline != null) {
       return timeline.timeScale(speed);
     }
